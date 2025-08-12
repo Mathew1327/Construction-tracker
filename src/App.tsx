@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/Auth/LoginForm';
 import { Dashboard } from './pages/Dashboard';
@@ -7,6 +7,7 @@ import { Projects } from './pages/Projects';
 import { Expenses } from './pages/Expenses';
 import { Materials } from './pages/Materials';
 import { Reports } from './pages/Reports';
+import { Phases } from './pages/Phases';
 import { Users } from './pages/Users';
 import { Documents } from './pages/Documents';
 import { RoleManagement } from './pages/RoleManagement';
@@ -50,6 +51,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Projects />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/phases"
+              element={
+                <ProtectedRoute>
+                  <Phases />
                 </ProtectedRoute>
               }
             />

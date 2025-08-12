@@ -8,27 +8,34 @@ type Material = {
   name: string;
   qty_required: number;
   unit_cost: number;
-  vendor_id: string;
-  vendor_name?: string;
+  project_id: string;
+  project_name?: string;
+};
+
+type Project = {
+  id: string;
+  name: string;
 };
 
 export function Materials() {
   const [materials, setMaterials] = useState<Material[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Add material modal state
+  // Modal state
   const [showModal, setShowModal] = useState(false);
   const [newMaterial, setNewMaterial] = useState({
     name: "",
     qty_required: "",
     unit_cost: "",
-    vendor_id: "",
+    project_id: "",
   });
 
   useEffect(() => {
     fetchMaterials();
+    fetchProjects();
   }, []);
 
   const fetchMaterials = async () => {
@@ -37,16 +44,14 @@ export function Materials() {
 
     const { data, error } = await supabase
       .from("materials")
-      .select(
-        `
+      .select(`
         id,
         name,
         qty_required,
         unit_cost,
-        vendor_id,
-        vendors ( name )
-      `
-      );
+        project_id,
+        projects ( name )
+      `);
 
     if (error) {
       setError(error.message);
@@ -56,12 +61,22 @@ export function Materials() {
         name: m.name,
         qty_required: m.qty_required,
         unit_cost: m.unit_cost,
-        vendor_id: m.vendor_id,
-        vendor_name: m.vendors?.name || "Unknown",
+        project_id: m.project_id,
+        project_name: m.projects?.name || "Unknown",
       }));
       setMaterials(mapped);
     }
     setLoading(false);
+  };
+
+  const fetchProjects = async () => {
+    const { data, error } = await supabase
+      .from("projects")
+      .select("id, name");
+
+    if (!error && data) {
+      setProjects(data);
+    }
   };
 
   const handleAddMaterial = async () => {
@@ -69,7 +84,7 @@ export function Materials() {
       !newMaterial.name ||
       !newMaterial.qty_required ||
       !newMaterial.unit_cost ||
-      !newMaterial.vendor_id
+      !newMaterial.project_id
     ) {
       alert("Please fill all fields");
       return;
@@ -80,7 +95,7 @@ export function Materials() {
         name: newMaterial.name,
         qty_required: Number(newMaterial.qty_required),
         unit_cost: Number(newMaterial.unit_cost),
-        vendor_id: newMaterial.vendor_id,
+        project_id: newMaterial.project_id,
       },
     ]);
 
@@ -92,7 +107,7 @@ export function Materials() {
         name: "",
         qty_required: "",
         unit_cost: "",
-        vendor_id: "",
+        project_id: "",
       });
       fetchMaterials();
     }
@@ -101,7 +116,7 @@ export function Materials() {
   const filteredMaterials = materials.filter(
     (material) =>
       material.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      material.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      material.project_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -163,7 +178,7 @@ export function Materials() {
                     Unit Cost
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Vendor
+                    Project
                   </th>
                 </tr>
               </thead>
@@ -180,7 +195,7 @@ export function Materials() {
                       ₹{material.unit_cost}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {material.vendor_name}
+                      {material.project_name}
                     </td>
                   </tr>
                 ))}
@@ -234,18 +249,23 @@ export function Materials() {
                     })
                   }
                 />
-                <input
-                  type="text"
-                  placeholder="Vendor ID"
+                <select
                   className="border rounded-lg w-full px-3 py-2"
-                  value={newMaterial.vendor_id}
+                  value={newMaterial.project_id}
                   onChange={(e) =>
                     setNewMaterial({
                       ...newMaterial,
-                      vendor_id: e.target.value,
+                      project_id: e.target.value,
                     })
                   }
-                />
+                >
+                  <option value="">Select Project</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="mt-6 flex justify-end gap-2">

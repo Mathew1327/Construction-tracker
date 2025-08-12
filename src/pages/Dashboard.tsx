@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FolderOpen,
-  DollarSign,
+  IndianRupeeIcon,
   Package,
   Users,
   TrendingUp,
   AlertTriangle,
   CheckCircle,
   Clock,
+  IndianRupee,
 } from "lucide-react";
 import { Layout } from "../components/Layout/Layout";
 import { supabase } from "../lib/supabase";
@@ -47,9 +48,9 @@ export function Dashboard() {
         },
         {
           name: "Total Expenses",
-          value: `$${(expenses?.reduce((sum, e) => sum + Number(e.amount), 0) || 0).toLocaleString()}`,
+          value: `₹${(expenses?.reduce((sum, e) => sum + Number(e.amount), 0) || 0).toLocaleString()}`,
           change: "",
-          icon: DollarSign,
+          icon: IndianRupee,
           color: "text-green-600",
           bgColor: "bg-green-100",
           href: "/expenses",
@@ -105,9 +106,9 @@ export function Dashboard() {
         activities.push({
           id: `expense-${e.phase_id}`,
           type: "expense",
-          message: `Expense of $${e.amount} recorded`,
+          message: `Expense of ₹${e.amount} recorded`,
           time: e.date ? new Date(e.date).toLocaleDateString() : "No date",
-          icon: DollarSign,
+          icon: IndianRupeeIcon,
           color: "text-blue-500",
         });
       });
@@ -131,7 +132,7 @@ export function Dashboard() {
     {
       name: "Log Expense",
       description: "Record a new project expense",
-      icon: DollarSign,
+      icon: IndianRupee,
       href: "/expenses", // changed
       color: "bg-green-600 hover:bg-green-700",
     },

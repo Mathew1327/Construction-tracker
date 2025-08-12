@@ -10,12 +10,15 @@ import {
   Archive,
   Settings,
   User,
+  IndianRupee,
+  Layers, // Added for phases icon
 } from 'lucide-react';
 
 const navigationItems = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Projects', href: '/projects', icon: FolderOpen },
-  { name: 'Expenses', href: '/expenses', icon: DollarSign },
+  { name: 'Phases', href: '/phases', icon: Layers }, // New phases link
+  { name: 'Expenses', href: '/expenses', icon: IndianRupee },
   { name: 'Materials', href: '/materials', icon: Package },
   { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'Users', href: '/users', icon: Users },
