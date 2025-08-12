@@ -1,7 +1,7 @@
 // src/components/Auth/LoginForm.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Building2 } from 'lucide-react';
+import { Building2, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function LoginForm() {
@@ -11,7 +11,23 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+
+  // Check session on load
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,16 +46,13 @@ export function LoginForm() {
 
         if (error) throw error;
 
-        // If user is returned immediately (no email confirmation required),
-        // create a profile row and go to dashboard.
         if (data?.user?.id) {
-          await supabase.from('profiles').insert([
-            { id: data.user.id, full_name: fullName, role: 'user' },
-          ]);
+          // Profile will now be created automatically by Supabase trigger
           navigate('/', { replace: true });
         } else {
-          // If email confirmation is required, inform user and send them to login.
-          setMessage('Sign-up successful. Please check your email to confirm your account.');
+          setMessage(
+            'Sign-up successful. Please check your email to confirm your account.'
+          );
           navigate('/login', { replace: true });
         }
       } else {
@@ -58,6 +71,15 @@ export function LoginForm() {
     }
   };
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout failed:', error.message);
+    } else {
+      navigate('/login', { replace: true });
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
@@ -66,65 +88,87 @@ export function LoginForm() {
         </div>
 
         <h2 className="mt-4 text-center text-2xl font-bold">
-          {isSignUp ? 'Create an Account' : 'Sign in to ConstructPro'}
+          {user
+            ? `Welcome, ${user.user_metadata?.full_name || user.email}`
+            : isSignUp
+            ? 'Create an Account'
+            : 'Sign in to ConstructPro'}
         </h2>
 
-        {message && <div className="mt-4 text-center text-sm text-red-600">{message}</div>}
+        {message && (
+          <div className="mt-4 text-center text-sm text-red-600">{message}</div>
+        )}
 
-        <form onSubmit={handleAuth} className="mt-6 space-y-4">
-          {isSignUp && (
+        {!user ? (
+          <form onSubmit={handleAuth} className="mt-6 space-y-4">
+            {isSignUp && (
+              <div>
+                <label className="block mb-1 font-medium">Full name</label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+            )}
+
             <div>
-              <label className="block mb-1 font-medium">Full name</label>
+              <label className="block mb-1 font-medium">Email</label>
               <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full border px-3 py-2 rounded"
               />
             </div>
-          )}
 
-          <div>
-            <label className="block mb-1 font-medium">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full border px-3 py-2 rounded"
-            />
+            <div>
+              <label className="block mb-1 font-medium">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full border px-3 py-2 rounded"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-60"
+            >
+              {loading ? 'Please wait...' : isSignUp ? 'Register' : 'Sign In'}
+            </button>
+          </form>
+        ) : (
+          <div className="mt-6 text-center">
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center gap-2 mx-auto"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </div>
+        )}
 
-          <div>
-            <label className="block mb-1 font-medium">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full border px-3 py-2 rounded"
-            />
+        {!user && (
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => setIsSignUp((s) => !s)}
+              className="text-blue-600 hover:underline text-sm"
+            >
+              {isSignUp
+                ? 'Already have an account? Sign in'
+                : "Don't have an account? Register"}
+            </button>
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-60"
-          >
-            {loading ? 'Please wait...' : isSignUp ? 'Register' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => setIsSignUp((s) => !s)}
-            className="text-blue-600 hover:underline text-sm"
-          >
-            {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Register"}
-          </button>
-        </div>
+        )}
       </div>
     </div>
   );
