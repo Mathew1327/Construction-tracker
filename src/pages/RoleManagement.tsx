@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Eye, X } from "lucide-react";
 import { Layout } from "../components/Layout/Layout";
 import { supabase } from "../lib/supabase";
-<<<<<<< HEAD
+
 import { useAuth } from "../contexts/AuthContext";
 
 export function RoleManagement() {
   const { loading: authLoading, userRole } = useAuth();
   const isAdmin = (userRole || "").toLowerCase() === "admin";
 
-=======
+
 
 export function RoleManagement() {
->>>>>>> origin/main
+
   const [roles, setRoles] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -40,42 +40,42 @@ export function RoleManagement() {
   ];
 
   useEffect(() => {
-<<<<<<< HEAD
+
     if (isAdmin) fetchRoles();
   }, [isAdmin]);
-=======
+
     fetchRoles();
   }, []);
->>>>>>> origin/main
+
 
   async function fetchRoles() {
     const { data, error } = await supabase
       .from("roles")
       .select("*")
-<<<<<<< HEAD
+
       .eq("is_active", true)
       .order("created_at", { ascending: false });
 
     if (error) console.error(error);
     else setRoles(data || []);
-=======
+
       .eq("is_active", true) // Only active roles
       .order("created_at", { ascending: false });
 
     if (error) console.error(error);
     else setRoles(data);
->>>>>>> origin/main
+
   }
 
   async function createRole() {
     if (!roleName.trim()) return;
     const { error } = await supabase.from("roles").insert([
       {
-<<<<<<< HEAD
+
         role_name: roleName,
-=======
+
         role_name: roleName, // Correct column name
->>>>>>> origin/main
+
         permissions: permissions,
         is_active: true,
         created_at: new Date(),
@@ -131,7 +131,7 @@ export function RoleManagement() {
     );
   }
 
-<<<<<<< HEAD
+
   // --- Access control (consistent with Sidebar/App) ---
   if (authLoading) {
     return (
@@ -150,8 +150,8 @@ export function RoleManagement() {
     );
   }
 
-=======
->>>>>>> origin/main
+
+
   return (
     <Layout>
       <div className="p-6">
@@ -185,13 +185,13 @@ export function RoleManagement() {
                 <td className="p-3">{role.role_name}</td>
                 <td className="p-3">{role.permissions?.join(", ")}</td>
                 <td className="p-3">
-<<<<<<< HEAD
+
                   {role.created_at
                     ? new Date(role.created_at).toLocaleDateString()
                     : "-"}
-=======
+
                   {new Date(role.created_at).toLocaleDateString()}
->>>>>>> origin/main
+
                 </td>
                 <td className="p-3 flex gap-3">
                   {/* View */}

@@ -6,26 +6,26 @@ import {
   Package,
   Users,
   TrendingUp,
-<<<<<<< HEAD
+
   CheckCircle,
-=======
+
   AlertTriangle,
   CheckCircle,
   Clock,
->>>>>>> origin/main
+
   IndianRupee,
 } from "lucide-react";
 import { Layout } from "../components/Layout/Layout";
 import { supabase } from "../lib/supabase";
-<<<<<<< HEAD
+
 import { useAuth } from "../contexts/AuthContext";
-=======
->>>>>>> origin/main
+
+
 
 export function Dashboard() {
   const [stats, setStats] = useState<any[]>([]);
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
-<<<<<<< HEAD
+
   const [clientProjects, setClientProjects] = useState<any[]>([]);
   const [clientPhases, setClientPhases] = useState<any[]>([]);
   const [role, setRole] = useState<string | null>(null);
@@ -72,7 +72,7 @@ export function Dashboard() {
         .from("materials")
         .select("qty_required");
       const { data: teamMembers } = await supabase.from("profiles").select("*");
-=======
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,16 +91,16 @@ export function Dashboard() {
       const { data: teamMembers } = await supabase
         .from("profiles")
         .select("*");
->>>>>>> origin/main
+
 
       setStats([
         {
           name: "Active Projects",
           value: projects?.length || 0,
-<<<<<<< HEAD
-=======
+
+
           change: "",
->>>>>>> origin/main
+
           icon: FolderOpen,
           color: "text-blue-600",
           bgColor: "bg-blue-100",
@@ -108,14 +108,14 @@ export function Dashboard() {
         },
         {
           name: "Total Expenses",
-<<<<<<< HEAD
+
           value: `₹${(
             expenses?.reduce((sum, e) => sum + Number(e.amount), 0) || 0
           ).toLocaleString()}`,
-=======
+
           value: `₹${(expenses?.reduce((sum, e) => sum + Number(e.amount), 0) || 0).toLocaleString()}`,
           change: "",
->>>>>>> origin/main
+
           icon: IndianRupee,
           color: "text-green-600",
           bgColor: "bg-green-100",
@@ -123,13 +123,13 @@ export function Dashboard() {
         },
         {
           name: "Materials Stock",
-<<<<<<< HEAD
+
           value:
             materials?.reduce((sum, m) => sum + (m.qty_required || 0), 0) || 0,
-=======
+
           value: materials?.reduce((sum, m) => sum + (m.qty_required || 0), 0) || 0,
           change: "",
->>>>>>> origin/main
+
           icon: Package,
           color: "text-yellow-600",
           bgColor: "bg-yellow-100",
@@ -138,10 +138,10 @@ export function Dashboard() {
         {
           name: "Team Members",
           value: teamMembers?.length || 0,
-<<<<<<< HEAD
-=======
+
+
           change: "",
->>>>>>> origin/main
+
           icon: Users,
           color: "text-purple-600",
           bgColor: "bg-purple-100",
@@ -168,16 +168,16 @@ export function Dashboard() {
       phases?.forEach((p) => {
         activities.push({
           id: `phase-${p.name}`,
-<<<<<<< HEAD
+
           message: `Phase "${p.name}" status: ${p.status}`,
           time: p.end_date
             ? new Date(p.end_date).toLocaleDateString()
             : "No date",
-=======
+
           type: "project",
           message: `Phase "${p.name}" status: ${p.status}`,
           time: p.end_date ? new Date(p.end_date).toLocaleDateString() : "No date",
->>>>>>> origin/main
+
           icon: CheckCircle,
           color: "text-green-500",
         });
@@ -186,10 +186,10 @@ export function Dashboard() {
       recentExpenses?.forEach((e) => {
         activities.push({
           id: `expense-${e.phase_id}`,
-<<<<<<< HEAD
-=======
+
+
           type: "expense",
->>>>>>> origin/main
+
           message: `Expense of ₹${e.amount} recorded`,
           time: e.date ? new Date(e.date).toLocaleDateString() : "No date",
           icon: IndianRupeeIcon,
@@ -202,58 +202,58 @@ export function Dashboard() {
 
     fetchData();
     fetchRecentActivities();
-<<<<<<< HEAD
+
   }, [user]);
 
   // ✅ Quick Actions (for non-clients)
-=======
+
   }, []);
 
   // ✅ Updated Quick Actions to go to main sections
->>>>>>> origin/main
+
   const quickActions = [
     {
       name: "Add New Project",
       description: "Create a new construction project",
       icon: FolderOpen,
-<<<<<<< HEAD
+
       href: "/projects",
-=======
+
       href: "/projects", // changed
->>>>>>> origin/main
+
       color: "bg-blue-600 hover:bg-blue-700",
     },
     {
       name: "Log Expense",
       description: "Record a new project expense",
       icon: IndianRupee,
-<<<<<<< HEAD
+
       href: "/expenses",
-=======
+
       href: "/expenses", // changed
->>>>>>> origin/main
+
       color: "bg-green-600 hover:bg-green-700",
     },
     {
       name: "Material Request",
       description: "Request materials for project",
       icon: Package,
-<<<<<<< HEAD
+
       href: "/materials",
-=======
+
       href: "/materials", // changed
->>>>>>> origin/main
+
       color: "bg-yellow-600 hover:bg-yellow-700",
     },
     {
       name: "Generate Report",
       description: "Create project or financial report",
       icon: TrendingUp,
-<<<<<<< HEAD
+
       href: "/reports",
-=======
+
       href: "/reports", // changed
->>>>>>> origin/main
+
       color: "bg-purple-600 hover:bg-purple-700",
     },
   ];
@@ -261,11 +261,11 @@ export function Dashboard() {
   return (
     <Layout title="Dashboard">
       <div className="space-y-8">
-<<<<<<< HEAD
+
         {/* ✅ Stats (always visible) */}
-=======
+
         {/* Stats Overview */}
->>>>>>> origin/main
+
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => {
             const Icon = stat.icon;
@@ -291,21 +291,21 @@ export function Dashboard() {
                       </dl>
                     </div>
                   </div>
-<<<<<<< HEAD
-=======
+
+
                   {stat.change && (
                     <div className="mt-4">
                       <div className="text-sm text-gray-600">{stat.change}</div>
                     </div>
                   )}
->>>>>>> origin/main
+
                 </div>
               </Link>
             );
           })}
         </div>
 
-<<<<<<< HEAD
+
         {/* ✅ Client Projects + Phases */}
         {role === "client" && (
           <div className="space-y-6">
@@ -393,7 +393,7 @@ export function Dashboard() {
             </div>
           </div>
         )}
-=======
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Quick Actions */}
           <div className="bg-white shadow-sm rounded-lg border">
@@ -445,7 +445,7 @@ export function Dashboard() {
             </div>
           </div>
         </div>
->>>>>>> origin/main
+
       </div>
     </Layout>
   );

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -23,7 +23,7 @@ function ProtectedRoute({
   allowedRoles?: string[];
 }) {
   const { user, loading, userRole } = useAuth();
-=======
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -41,7 +41,7 @@ import { Profile } from './pages/Profile';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
->>>>>>> origin/main
+
 
   if (loading) {
     return (
@@ -51,15 +51,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-<<<<<<< HEAD
+
   if (!user) return <Navigate to="/login" replace />;
 
   if (allowedRoles.length && !allowedRoles.includes(userRole ?? "")) {
     return <Navigate to="/" replace />;
-=======
+
   if (!user) {
     return <LoginForm />;
->>>>>>> origin/main
+
   }
 
   return <>{children}</>;
@@ -69,7 +69,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-<<<<<<< HEAD
+
         <Routes>
           <Route path="/login" element={<LoginForm />} />
 
@@ -162,7 +162,7 @@ function App() {
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-=======
+
         <div className="App">
           <Routes>
             <Route path="/login" element={<LoginForm />} />
@@ -248,7 +248,7 @@ function App() {
             />
           </Routes>
         </div>
->>>>>>> origin/main
+
       </Router>
     </AuthProvider>
   );

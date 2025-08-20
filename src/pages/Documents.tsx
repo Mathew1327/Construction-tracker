@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 // src/pages/Documents.tsx
 import React, { useEffect, useState } from "react";
 import { Search, Download, Eye, Upload } from "lucide-react";
@@ -6,12 +6,12 @@ import { Layout } from "../components/Layout/Layout";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext"; // ✅ for user + role
 import imageCompression from "browser-image-compression"; // ✅ compression lib
-=======
+
 import React, { useEffect, useState } from 'react';
 import { Search, Download, Eye, Upload } from 'lucide-react';
 import { Layout } from '../components/Layout/Layout';
 import { supabase } from '../lib/supabase';
->>>>>>> origin/main
+
 
 type DocRecord = {
   id: string;
@@ -21,12 +21,12 @@ type DocRecord = {
   uploaded_by?: string;
   upload_date?: string;
   size?: string;
-<<<<<<< HEAD
-=======
+
+
   version?: string;
   type?: string;
   status?: string;
->>>>>>> origin/main
+
   file_path?: string;
 };
 
@@ -35,7 +35,7 @@ type Project = {
   name: string;
 };
 
-<<<<<<< HEAD
+
 type User = {
   id: string;
   full_name?: string;
@@ -66,7 +66,7 @@ export function Documents() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [category, setCategory] = useState("");
   const [project, setProject] = useState("");
-=======
+
 const constructionCategories = [
   'Site Plan',
   'Building Permit',
@@ -87,12 +87,12 @@ export function Documents() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [category, setCategory] = useState('');
   const [project, setProject] = useState('');
->>>>>>> origin/main
+
 
   useEffect(() => {
     fetchDocuments();
     fetchProjects();
-<<<<<<< HEAD
+
     fetchUsers();
   }, [userRole, user?.id]);
 
@@ -107,7 +107,7 @@ export function Documents() {
     const { data, error } = await query;
     if (error) {
       console.error("Error fetching documents:", error.message);
-=======
+
   }, []);
 
   async function fetchDocuments() {
@@ -118,7 +118,7 @@ export function Documents() {
 
     if (error) {
       console.error('Error fetching documents:', error.message);
->>>>>>> origin/main
+
     } else {
       setDocuments(data || []);
     }
@@ -126,27 +126,27 @@ export function Documents() {
 
   async function fetchProjects() {
     const { data, error } = await supabase
-<<<<<<< HEAD
+
       .from("projects")
       .select("id, name")
       .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching projects:", error.message);
-=======
+
       .from('projects')
       .select('id, name')
       .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching projects:', error.message);
->>>>>>> origin/main
+
     } else {
       setProjects(data || []);
     }
   }
 
-<<<<<<< HEAD
+
   async function fetchUsers() {
     const { data, error } = await supabase.from("profiles").select("id, full_name, email");
     if (error) {
@@ -225,7 +225,7 @@ export function Documents() {
     } catch (err) {
       console.error("Compression/Upload error:", err);
       alert("Something went wrong during upload");
-=======
+
   async function handleUpload() {
     if (!selectedFile) {
       alert('Please select a file first');
@@ -279,40 +279,40 @@ export function Documents() {
       setCategory('');
       setProject('');
       fetchDocuments();
->>>>>>> origin/main
+
     }
   }
 
   async function handleDownload(filePath: string, fileName: string) {
-<<<<<<< HEAD
+
     const { data, error } = await supabase.storage.from("project-docs").download(filePath);
 
     if (error) {
       console.error("Error downloading file:", error.message);
-=======
+
     const { data, error } = await supabase.storage
       .from('project-docs')
       .download(filePath);
 
     if (error) {
       console.error('Error downloading file:', error.message);
->>>>>>> origin/main
+
       return;
     }
 
     const url = URL.createObjectURL(data);
-<<<<<<< HEAD
+
     const a = document.createElement("a");
-=======
+
     const a = document.createElement('a');
->>>>>>> origin/main
+
     a.href = url;
     a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
   }
 
-<<<<<<< HEAD
+
   function getUserName(userId?: string) {
     const user = users.find((u) => u.id === userId);
     return user?.full_name || user?.email || userId || "Unknown";
@@ -322,11 +322,11 @@ export function Documents() {
     <Layout>
       <div className="p-4">
         {/* Header + Search */}
-=======
+
   return (
     <Layout>
       <div className="p-4">
->>>>>>> origin/main
+
         <div className="flex justify-between mb-4">
           <h1 className="text-xl font-bold">Documents</h1>
           <div className="flex gap-2">
@@ -341,7 +341,7 @@ export function Documents() {
           </div>
         </div>
 
-<<<<<<< HEAD
+
         {/* Upload Button */}
         <div className="mb-4">
           <button
@@ -390,7 +390,7 @@ export function Documents() {
         )}
 
         {/* Documents Table */}
-=======
+
         <div className="mb-4 flex gap-2">
           <input
             type="file"
@@ -428,7 +428,7 @@ export function Documents() {
           </button>
         </div>
 
->>>>>>> origin/main
+
         <table className="w-full border">
           <thead>
             <tr className="bg-gray-100 text-left">
@@ -443,29 +443,29 @@ export function Documents() {
           </thead>
           <tbody>
             {documents
-<<<<<<< HEAD
+
               .filter((doc) => doc.name?.toLowerCase().includes(search.toLowerCase()))
-=======
+
               .filter((doc) =>
                 doc.name?.toLowerCase().includes(search.toLowerCase())
               )
->>>>>>> origin/main
+
               .map((doc) => (
                 <tr key={doc.id}>
                   <td className="p-2 border">{doc.name}</td>
                   <td className="p-2 border">{doc.category}</td>
                   <td className="p-2 border">{doc.project}</td>
-<<<<<<< HEAD
+
                   <td className="p-2 border">{getUserName(doc.uploaded_by)}</td>
                   <td className="p-2 border">
                     {doc.upload_date ? new Date(doc.upload_date).toLocaleDateString() : ""}
-=======
+
                   <td className="p-2 border">{doc.uploaded_by}</td>
                   <td className="p-2 border">
                     {doc.upload_date
                       ? new Date(doc.upload_date).toLocaleDateString()
                       : ''}
->>>>>>> origin/main
+
                   </td>
                   <td className="p-2 border">{doc.size}</td>
                   <td className="p-2 border flex gap-2">
@@ -473,27 +473,27 @@ export function Documents() {
                       className="cursor-pointer"
                       onClick={() =>
                         window.open(
-<<<<<<< HEAD
+
                           supabase.storage.from("project-docs").getPublicUrl(doc.file_path || "").data.publicUrl,
                           "_blank"
-=======
+
                           supabase.storage
                             .from('project-docs')
                             .getPublicUrl(doc.file_path || '').data.publicUrl,
                           '_blank'
->>>>>>> origin/main
+
                         )
                       }
                     />
                     <Download
                       className="cursor-pointer"
-<<<<<<< HEAD
+
                       onClick={() => handleDownload(doc.file_path || "", doc.name || "")}
-=======
+
                       onClick={() =>
                         handleDownload(doc.file_path || '', doc.name || '')
                       }
->>>>>>> origin/main
+
                     />
                   </td>
                 </tr>

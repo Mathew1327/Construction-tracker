@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 // src/pages/Users.tsx
 import React, { useEffect, useState } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
@@ -181,7 +181,7 @@ export function Users() {
       </Layout>
     );
   }
-=======
+
 import React, { useEffect, useState } from "react";
 import { Plus, Eye, Edit, Trash2 } from "lucide-react";
 import { Layout } from "../components/Layout/Layout";
@@ -341,7 +341,7 @@ export function Users() {
     selectedRole === "All"
       ? users
       : users.filter((u) => u.role_name === selectedRole);
->>>>>>> origin/main
+
 
   return (
     <Layout>
@@ -357,7 +357,7 @@ export function Users() {
           </button>
         </div>
 
-<<<<<<< HEAD
+
         {/* Users table */}
         <div className="overflow-x-auto bg-white border rounded shadow">
           <table className="min-w-full">
@@ -456,7 +456,7 @@ export function Users() {
                 value={newUser.project_id}
                 onChange={(e) =>
                   setNewUser((s) => ({ ...s, project_id: e.target.value }))
-=======
+
         {/* Role Filter */}
         <div className="mb-4">
           <select
@@ -562,7 +562,7 @@ export function Users() {
                 value={newUser.project_id}
                 onChange={(e) =>
                   setNewUser({ ...newUser, project_id: e.target.value })
->>>>>>> origin/main
+
                 }
               >
                 <option value="">None</option>
@@ -573,29 +573,29 @@ export function Users() {
                 ))}
               </select>
 
-<<<<<<< HEAD
+
               <div className="flex justify-end gap-2">
                 <button
                   className="px-4 py-2 bg-gray-200 rounded"
                   onClick={() => setShowModal(false)}
                   disabled={saving}
-=======
+
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={() => setShowModal(false)}
                   className="px-4 py-2 bg-gray-200 rounded"
->>>>>>> origin/main
+
                 >
                   Cancel
                 </button>
                 <button
-<<<<<<< HEAD
+
                   className="px-4 py-2 bg-purple-600 text-white rounded disabled:opacity-50"
                   onClick={handleSaveUser}
                   disabled={saving}
                 >
                   {saving ? "Saving..." : "Save User"}
-=======
+
                   onClick={handleSaveUser}
                   className="px-4 py-2 bg-purple-600 text-white rounded"
                 >
@@ -679,7 +679,7 @@ export function Users() {
                   className="px-4 py-2 bg-red-600 text-white rounded"
                 >
                   Delete
->>>>>>> origin/main
+
                 </button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 // src/pages/Phases.tsx
 import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, X, MessageSquare } from "lucide-react";
@@ -6,12 +6,12 @@ import { Layout } from "../components/Layout/Layout";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import imageCompression from "browser-image-compression"; // ✅ added
-=======
+
 import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { Layout } from "../components/Layout/Layout";
 import { supabase } from "../lib/supabase";
->>>>>>> origin/main
+
 
 type Project = {
   id: string;
@@ -26,7 +26,7 @@ type Phase = {
   start_date: string;
   end_date: string;
   status: "Not Started" | "In Progress" | "Completed";
-<<<<<<< HEAD
+
   photos?: string[];
 };
 
@@ -46,13 +46,13 @@ export function Phases() {
   const [newComment, setNewComment] = useState<Record<string, string>>({});
   const [editingPhase, setEditingPhase] = useState<Phase | null>(null);
   const [showModal, setShowModal] = useState(false);
-=======
+
 };
 
 export function Phases() {
   const [phases, setPhases] = useState<Phase[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
->>>>>>> origin/main
+
   const [form, setForm] = useState({
     project_id: "",
     name: "",
@@ -60,16 +60,16 @@ export function Phases() {
     end_date: "",
     status: "Not Started" as "Not Started" | "In Progress" | "Completed",
   });
-<<<<<<< HEAD
+
   const [photos, setPhotos] = useState<FileList | null>(null);
 
   // Permissions
   const canManage = ["Admin", "Project Manager", "Site Engineer"].includes(
     userRole ?? ""
   );
-=======
+
   const [editingId, setEditingId] = useState<string | null>(null);
->>>>>>> origin/main
+
 
   // Fetch projects
   useEffect(() => {
@@ -85,7 +85,7 @@ export function Phases() {
     fetchProjects();
   }, []);
 
-<<<<<<< HEAD
+
   // Fetch phases + photos + comments
   const fetchPhases = async () => {
     const { data, error } = await supabase
@@ -177,7 +177,7 @@ export function Phases() {
 
     setNewComment((prev) => ({ ...prev, [photoUrl]: "" }));
     await fetchComments(photoUrl);
-=======
+
   // Fetch phases
   const fetchPhases = async () => {
     const { data, error } = await supabase
@@ -198,14 +198,14 @@ export function Phases() {
       }));
       setPhases(mapped || []);
     }
->>>>>>> origin/main
+
   };
 
   useEffect(() => {
     fetchPhases();
   }, []);
 
-<<<<<<< HEAD
+
   // Save / update
   const savePhase = async () => {
     if (!form.project_id) return alert("Please select a project.");
@@ -259,7 +259,7 @@ export function Phases() {
         }
         setShowModal(false);
         setEditingPhase(null);
-=======
+
   // Save phase
   const savePhase = async () => {
     if (!form.project_id) {
@@ -286,7 +286,7 @@ export function Phases() {
       if (error) console.error("Error updating phase:", error.message);
       else {
         setEditingId(null);
->>>>>>> origin/main
+
         setForm({
           project_id: "",
           name: "",
@@ -294,14 +294,14 @@ export function Phases() {
           end_date: "",
           status: "Not Started",
         });
-<<<<<<< HEAD
+
         setPhotos(null);
         fetchPhases();
       }
     } else {
       const { error } = await supabase.from("phases").insert([form]).select();
       if (error) console.error("Insert error:", error.message);
-=======
+
         fetchPhases();
       }
     } else {
@@ -316,7 +316,7 @@ export function Phases() {
       ]);
 
       if (error) console.error("Error inserting phase:", error.message);
->>>>>>> origin/main
+
       else {
         setForm({
           project_id: "",
@@ -330,14 +330,14 @@ export function Phases() {
     }
   };
 
-<<<<<<< HEAD
+
   const editPhase = (phase: Phase) => {
     setEditingPhase(phase);
-=======
+
   // Edit phase
   const editPhase = (phase: Phase) => {
     setEditingId(phase.id);
->>>>>>> origin/main
+
     setForm({
       project_id: phase.project_id,
       name: phase.name,
@@ -345,7 +345,7 @@ export function Phases() {
       end_date: phase.end_date || "",
       status: phase.status,
     });
-<<<<<<< HEAD
+
     setShowModal(true);
   };
 
@@ -353,7 +353,7 @@ export function Phases() {
     if (!window.confirm("Are you sure you want to delete this phase?")) return;
     const { error } = await supabase.from("phases").delete().eq("id", id);
     if (error) console.error("Delete error:", error.message);
-=======
+
   };
 
   // Delete phase
@@ -361,7 +361,7 @@ export function Phases() {
     if (!window.confirm("Are you sure you want to delete this phase?")) return;
     const { error } = await supabase.from("phases").delete().eq("id", id);
     if (error) console.error("Error deleting phase:", error.message);
->>>>>>> origin/main
+
     else fetchPhases();
   };
 
@@ -370,7 +370,7 @@ export function Phases() {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Phases</h1>
 
-<<<<<<< HEAD
+
         {/* Add Phase form - only for Admin/PM/Engineer */}
         {canManage && (
           <div className="mb-6 p-4 border rounded-lg">
@@ -609,7 +609,7 @@ export function Phases() {
             </div>
           </div>
         )}
-=======
+
         {/* Form */}
         <div className="mb-6 p-4 border rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -711,7 +711,7 @@ export function Phases() {
             ))}
           </tbody>
         </table>
->>>>>>> origin/main
+
       </div>
     </Layout>
   );
