@@ -1,690 +1,239 @@
-
 // src/pages/Users.tsx
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, Trash2 } from "lucide-react";
-import { Layout } from "../components/Layout/Layout";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
+import { Layout } from "../components/Layout/Layout";
+import { Plus, Edit2, Trash2, X } from "lucide-react";
 
-type Project = { id: string; name: string };
-type UserRow = {
+type User = {
   id: string;
-  full_name: string;
+  name: string;
   email: string;
-  role: string | null;
-  project_id: string | null;
-  project_name: string | null;
-  created_at: string | null;
+  role_id: string;
+};
+
+type Role = {
+  id: string;
+  name: string;
+};
+
+type Project = {
+  id: string;
+  name: string;
 };
 
 export function Users() {
-  const { loading: authLoading, userRole } = useAuth();
-  const isAdmin = (userRole || "").toLowerCase() === "admin";
-
-  const [users, setUsers] = useState<UserRow[]>([]);
+  const { profile } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  const [newUser, setNewUser] = useState({
-    full_name: "",
-    email: "",
-    role: "",
-    project_id: "",
-  });
-
-  // Fetch projects
-  useEffect(() => {
-    if (!isAdmin) return;
-    let mounted = true;
-    const fetchProjects = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("projects")
-          .select("id, name")
-          .order("name");
-        if (error) throw error;
-        if (mounted) setProjects(data || []);
-      } catch (e) {
-        console.error("Error fetching projects:", e);
-      }
-    };
-    fetchProjects();
-    return () => {
-      mounted = false;
-    };
-  }, [isAdmin]);
-
-  // Fetch users
-  useEffect(() => {
-    if (!isAdmin) return;
-    let mounted = true;
-    const fetchUsers = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("id, full_name, email, role, project_id, created_at");
-        if (error) throw error;
-
-        const formattedUsers = (data || []).map((u: any) => ({
-          id: u.id,
-          full_name: u.full_name,
-          email: u.email,
-          role: u.role,
-          project_id: u.project_id,
-          project_name:
-            projects.find((p) => p.id === u.project_id)?.name ?? "—",
-          created_at: u.created_at ?? null,
-        }));
-
-        if (mounted) setUsers(formattedUsers);
-      } catch (e) {
-        console.error("Error fetching users:", e);
-        if (mounted) setUsers([]);
-      }
-    };
-    fetchUsers();
-    return () => {
-      mounted = false;
-    };
-  }, [projects, isAdmin]);
-
-  // Add new user
-  const handleSaveUser = async () => {
-    if (!newUser.full_name.trim() || !newUser.email.trim() || !newUser.role) {
-      alert("Please fill name, email, role.");
-      return;
-    }
-    setSaving(true);
-    try {
-      const tempPassword = Math.random().toString(36).slice(-10);
-
-      // Create Auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: newUser.email.trim(),
-        password: tempPassword,
-      });
-      if (authError) throw authError;
-
-      const userId = authData.user?.id;
-      if (!userId) throw new Error("Failed to get user ID");
-
-      // Insert into profiles
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .upsert([
-          {
-            id: userId,
-            full_name: newUser.full_name.trim(),
-            email: newUser.email.trim(),
-            role: newUser.role,
-            project_id: newUser.project_id || null,
-          },
-        ]);
-      if (profileError) throw profileError;
-
-      alert(
-        `✅ User created!\nEmail: ${newUser.email}\nTemporary Password: ${tempPassword}`
-      );
-
-      setShowModal(false);
-      setNewUser({ full_name: "", email: "", role: "", project_id: "" });
-      // Refresh users
-      const { data: refreshedData } = await supabase
-        .from("profiles")
-        .select("id, full_name, email, role, project_id, created_at");
-      const formattedUsers = (refreshedData || []).map((u: any) => ({
-        id: u.id,
-        full_name: u.full_name,
-        email: u.email,
-        role: u.role,
-        project_id: u.project_id,
-        project_name:
-          projects.find((p) => p.id === u.project_id)?.name ?? "—",
-        created_at: u.created_at ?? null,
-      }));
-      setUsers(formattedUsers);
-    } catch (e: any) {
-      console.error(e);
-      alert(e.message || "Failed to create user");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Delete profile
-  const handleDeleteUser = async (id: string) => {
-    if (!confirm("Remove this user profile?")) return;
-    try {
-      const { error } = await supabase.from("profiles").delete().eq("id", id);
-      if (error) throw error;
-      setUsers((prev) => prev.filter((u) => u.id !== id));
-    } catch (e: any) {
-      alert(e.message || "Failed to delete profile");
-    }
-  };
-
-  if (authLoading) {
-    return (
-      <Layout>
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600" />
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <Layout>
-        <div className="p-6 text-red-600 font-semibold">Access Denied</div>
-      </Layout>
-    );
-  }
-
-import React, { useEffect, useState } from "react";
-import { Plus, Eye, Edit, Trash2 } from "lucide-react";
-import { Layout } from "../components/Layout/Layout";
-import { supabase } from "../lib/supabase";
-
-export function Users() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [roles, setRoles] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [selectedRole, setSelectedRole] = useState("All");
-  const [showModal, setShowModal] = useState(false);
-  const [viewUser, setViewUser] = useState<any | null>(null);
-  const [editUser, setEditUser] = useState<any | null>(null);
-  const [deleteUser, setDeleteUser] = useState<any | null>(null);
-  const [newUser, setNewUser] = useState({
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     role_id: "",
-    project_id: "",
+    projectIds: [] as string[],
   });
 
   useEffect(() => {
-    fetchUsers();
-    fetchRoles();
-    fetchProjects();
+    async function fetchData() {
+      setLoading(true);
+
+      const { data: usersData, error: usersError } = await supabase
+        .from("users")
+        .select("*");
+
+      if (usersError) console.error(usersError);
+      else setUsers(usersData as User[]);
+
+      const { data: rolesData } = await supabase.from("roles").select("*");
+      if (rolesData) setRoles(rolesData as Role[]);
+
+      const { data: projectsData } = await supabase.from("projects").select("*");
+      if (projectsData) setProjects(projectsData as Project[]);
+
+      setLoading(false);
+    }
+    fetchData();
   }, []);
 
-  const fetchUsers = async () => {
-    const { data, error } = await supabase
-      .from("users")
-      .select(
-        `
-        id,
-        name,
-        email,
-        created_at,
-        active,
-        roles:role_id ( role_name ),
-        projects:project_id ( name )
-      `
-      )
-      .order("created_at", { ascending: false });
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
 
-    if (error) {
-      console.error("Error fetching users:", error);
+    // Generate random password
+    const password = Math.random().toString(36).slice(-8);
+
+    // Insert user
+    const { data: newUser, error: insertError } = await supabase
+      .from("users")
+      .insert([{ name: formData.name, email: formData.email, role_id: formData.role_id }])
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error(insertError);
       return;
     }
 
-    const mappedUsers = (data || [])
-      .filter((u) => u.active !== false)
-      .map((u) => ({
-        ...u,
-        role_name: u.roles?.role_name || "N/A",
-        assigned_project: u.projects?.name || "None",
+    // Map projects
+    if (formData.projectIds.length > 0) {
+      const mappings = formData.projectIds.map((pid) => ({
+        user_id: newUser.id,
+        project_id: pid,
       }));
-
-    setUsers(mappedUsers);
-  };
-
-  const fetchRoles = async () => {
-    const { data, error } = await supabase
-      .from("roles")
-      .select("id, role_name")
-      .order("role_name");
-
-    if (error) {
-      console.error("Error fetching roles:", error);
-      return;
-    }
-    setRoles(data.map((r) => ({ id: r.id, name: r.role_name })));
-  };
-
-  const fetchProjects = async () => {
-    const { data, error } = await supabase
-      .from("projects")
-      .select("id, name")
-      .order("name");
-
-    if (error) {
-      console.error("Error fetching projects:", error);
-      return;
-    }
-    setProjects(data);
-  };
-
-  const handleSaveUser = async () => {
-    if (!newUser.name || !newUser.email || !newUser.role_id) {
-      alert("Please fill all required fields");
-      return;
+      await supabase.from("user_projects").insert(mappings);
     }
 
-    const { error: userError } = await supabase.from("users").insert([
-      {
-        name: newUser.name,
-        email: newUser.email,
-        role_id: newUser.role_id,
-        project_id: newUser.project_id || null,
-        active: true,
-      },
-    ]);
+    // Placeholder for sending email
+    console.log(`Send email to ${formData.email} with password ${password}`);
 
-    if (userError) {
-      alert(userError.message);
-      return;
-    }
+    setUsers((prev) => [...prev, newUser]);
+    setShowForm(false);
+    setFormData({ name: "", email: "", role_id: "", projectIds: [] });
+  }
 
-    await sendAccountCreationEmail(newUser.email, newUser.name);
+  async function handleDelete(userId: string) {
+    const { error } = await supabase.from("users").delete().eq("id", userId);
+    if (error) console.error(error);
+    else setUsers(users.filter((u) => u.id !== userId));
+  }
 
-    setShowModal(false);
-    setNewUser({ name: "", email: "", role_id: "", project_id: "" });
-    fetchUsers();
-  };
-
-  const sendAccountCreationEmail = async (email: string, name: string) => {
-    await fetch("/api/send-welcome-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, name }),
-    });
-  };
-
-  const saveEditedUser = async () => {
-    if (!editUser?.name.trim()) return;
-
-    const { error } = await supabase
-      .from("users")
-      .update({ name: editUser.name })
-      .eq("id", editUser.id);
-
-    if (error) {
-      alert("Error updating user");
-      return;
-    }
-
-    setEditUser(null);
-    fetchUsers();
-  };
-
-  const confirmDeleteUser = async () => {
-    if (!deleteUser) return;
-
-    const { error } = await supabase
-      .from("users")
-      .update({ active: false })
-      .eq("id", deleteUser.id);
-
-    if (error) {
-      alert("Error deactivating user");
-      return;
-    }
-
-    setUsers((prev) => prev.filter((u) => u.id !== deleteUser.id));
-    setDeleteUser(null);
-  };
-
-  const filteredUsers =
-    selectedRole === "All"
-      ? users
-      : users.filter((u) => u.role_name === selectedRole);
-
+  if (loading) return <Layout>Loading...</Layout>;
 
   return (
     <Layout>
       <div className="p-6">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Users</h1>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center bg-purple-600 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-700"
+        <h1 className="text-2xl font-bold mb-4">Users</h1>
+
+        <button
+          onClick={() => setShowForm(true)}
+          className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus /> Add User
+        </button>
+
+        {showForm && (
+          <form
+            onSubmit={handleSubmit}
+            className="mb-6 p-4 border rounded shadow space-y-4"
           >
-            <Plus className="w-5 h-5 mr-2" /> Add New User
-          </button>
-        </div>
-
-
-        {/* Users table */}
-        <div className="overflow-x-auto bg-white border rounded shadow">
-          <table className="min-w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b">
-                <th className="px-4 py-2 text-left">Name</th>
-                <th className="px-4 py-2 text-left">Email</th>
-                <th className="px-4 py-2 text-left">Role</th>
-                <th className="px-4 py-2 text-left">Assigned Project</th>
-                <th className="px-4 py-2 text-left">Created</th>
-                <th className="px-4 py-2 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length > 0 ? (
-                users.map((u) => (
-                  <tr key={u.id} className="border-b">
-                    <td className="px-4 py-2">{u.full_name}</td>
-                    <td className="px-4 py-2">{u.email}</td>
-                    <td className="px-4 py-2">{u.role ?? "—"}</td>
-                    <td className="px-4 py-2">{u.project_name ?? "—"}</td>
-                    <td className="px-4 py-2">
-                      {u.created_at
-                        ? new Date(u.created_at).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="p-2 rounded hover:bg-gray-100"
-                          title="Edit (not implemented)"
-                        >
-                          <Edit className="w-5 h-5 text-blue-600" />
-                        </button>
-                        <button
-                          className="p-2 rounded hover:bg-gray-100"
-                          onClick={() => handleDeleteUser(u.id)}
-                          title="Delete"
-                        >
-                          <Trash2 className="w-5 h-5 text-red-600" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="px-4 py-6 text-gray-500" colSpan={6}>
-                    No users found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Add User Modal */}
-        {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Add New User</h2>
-
-              <label className="text-sm font-medium">Full Name</label>
+            <div>
+              <label className="block font-semibold">Name</label>
               <input
                 type="text"
-                className="w-full border rounded px-3 py-2 mb-3"
-                value={newUser.full_name}
+                value={formData.name}
                 onChange={(e) =>
-                  setNewUser((s) => ({ ...s, full_name: e.target.value }))
+                  setFormData({ ...formData, name: e.target.value })
                 }
+                className="w-full border p-2 rounded"
+                required
               />
-
-              <label className="text-sm font-medium">Email</label>
+            </div>
+            <div>
+              <label className="block font-semibold">Email</label>
               <input
                 type="email"
-                className="w-full border rounded px-3 py-2 mb-3"
-                value={newUser.email}
+                value={formData.email}
                 onChange={(e) =>
-                  setNewUser((s) => ({ ...s, email: e.target.value }))
+                  setFormData({ ...formData, email: e.target.value })
                 }
+                className="w-full border p-2 rounded"
+                required
               />
-
-              <label className="text-sm font-medium">Role</label>
-              <input
-                type="text"
-                className="w-full border rounded px-3 py-2 mb-3"
-                value={newUser.role}
-                onChange={(e) =>
-                  setNewUser((s) => ({ ...s, role: e.target.value }))
-                }
-              />
-
-              <label className="text-sm font-medium">Assigned Project</label>
+            </div>
+            <div>
+              <label className="block font-semibold">Role</label>
               <select
-                className="w-full border rounded px-3 py-2 mb-6"
-                value={newUser.project_id}
+                value={formData.role_id}
                 onChange={(e) =>
-                  setNewUser((s) => ({ ...s, project_id: e.target.value }))
-
-        {/* Role Filter */}
-        <div className="mb-4">
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="border rounded px-3 py-2"
-          >
-            <option value="All">All</option>
-            {roles.map((role) => (
-              <option key={role.id} value={role.name}>
-                {role.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Table */}
-        <table className="min-w-full bg-white border rounded shadow">
-          <thead>
-            <tr className="bg-gray-100 border-b">
-              <th className="px-4 py-2 text-left">Name</th>
-              <th className="px-4 py-2 text-left">Email</th>
-              <th className="px-4 py-2 text-left">Role</th>
-              <th className="px-4 py-2 text-left">Assigned Project</th>
-              <th className="px-4 py-2 text-left">Created On</th>
-              <th className="px-4 py-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className="border-b">
-                <td className="px-4 py-2">{user.name}</td>
-                <td className="px-4 py-2">{user.email}</td>
-                <td className="px-4 py-2">{user.role_name}</td>
-                <td className="px-4 py-2">{user.assigned_project}</td>
-                <td className="px-4 py-2">
-                  {new Date(user.created_at).toLocaleString()}
-                </td>
-                <td className="px-4 py-2 flex space-x-2">
-                  <Eye
-                    className="w-5 h-5 text-blue-500 cursor-pointer"
-                    onClick={() => setViewUser(user)}
-                  />
-                  <Edit
-                    className="w-5 h-5 text-yellow-500 cursor-pointer"
-                    onClick={() => setEditUser({ ...user })}
-                  />
-                  <Trash2
-                    className="w-5 h-5 text-red-500 cursor-pointer"
-                    onClick={() => setDeleteUser(user)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Add New User Modal */}
-        {showModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Add New User</h2>
-
-              <input
-                type="text"
-                placeholder="Enter name"
-                className="w-full border rounded px-3 py-2 mb-3"
-                value={newUser.name}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, name: e.target.value })
+                  setFormData({ ...formData, role_id: e.target.value })
                 }
-              />
-              <input
-                type="email"
-                placeholder="Enter email"
-                className="w-full border rounded px-3 py-2 mb-3"
-                value={newUser.email}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, email: e.target.value })
-                }
-              />
-
-              <select
-                className="w-full border rounded px-3 py-2 mb-3"
-                value={newUser.role_id}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, role_id: e.target.value })
-                }
+                className="w-full border p-2 rounded"
+                required
               >
-                <option value="">Select Role</option>
-                {roles.map((role) => (
-                  <option key={role.id} value={role.id}>
-                    {role.name}
+                <option value="">Select role</option>
+                {roles.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
                   </option>
                 ))}
               </select>
-
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Assigned Project
-              </label>
+            </div>
+            <div>
+              <label className="block font-semibold">Projects</label>
               <select
-                className="w-full border rounded px-3 py-2 mb-3"
-                value={newUser.project_id}
+                multiple
+                value={formData.projectIds}
                 onChange={(e) =>
-                  setNewUser({ ...newUser, project_id: e.target.value })
-
+                  setFormData({
+                    ...formData,
+                    projectIds: Array.from(
+                      e.target.selectedOptions,
+                      (opt) => opt.value
+                    ),
+                  })
                 }
+                className="w-full border p-2 rounded"
               >
-                <option value="">None</option>
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
                   </option>
                 ))}
               </select>
-
-
-              <div className="flex justify-end gap-2">
-                <button
-                  className="px-4 py-2 bg-gray-200 rounded"
-                  onClick={() => setShowModal(false)}
-                  disabled={saving}
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-gray-200 rounded"
-
-                >
-                  Cancel
-                </button>
-                <button
-
-                  className="px-4 py-2 bg-purple-600 text-white rounded disabled:opacity-50"
-                  onClick={handleSaveUser}
-                  disabled={saving}
-                >
-                  {saving ? "Saving..." : "Save User"}
-
-                  onClick={handleSaveUser}
-                  className="px-4 py-2 bg-purple-600 text-white rounded"
-                >
-                  Save User
-                </button>
-              </div>
             </div>
-          </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="px-4 py-2 border rounded hover:bg-gray-100 flex items-center gap-2"
+              >
+                <X /> Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2"
+              >
+                <Plus /> Add
+              </button>
+            </div>
+          </form>
         )}
 
-        {/* View User Modal */}
-        {viewUser && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-              <h2 className="text-xl font-semibold mb-4">User Information</h2>
-              <p><strong>Name:</strong> {viewUser.name}</p>
-              <p><strong>Email:</strong> {viewUser.email}</p>
-              <p><strong>Role:</strong> {viewUser.role_name}</p>
-              <p><strong>Project:</strong> {viewUser.assigned_project}</p>
-              <div className="flex justify-end mt-4">
-                <button
-                  onClick={() => setViewUser(null)}
-                  className="px-4 py-2 bg-gray-200 rounded"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit User Modal */}
-        {editUser && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-              <h2 className="text-xl font-semibold mb-4">Edit User</h2>
-              <input
-                type="text"
-                className="w-full border rounded px-3 py-2 mb-3"
-                value={editUser.name}
-                onChange={(e) =>
-                  setEditUser({ ...editUser, name: e.target.value })
-                }
-              />
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={() => setEditUser(null)}
-                  className="px-4 py-2 bg-gray-200 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={saveEditedUser}
-                  className="px-4 py-2 bg-purple-600 text-white rounded"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Delete Confirmation Modal */}
-        {deleteUser && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-              <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
-              <p>
-                Are you sure you want to delete{" "}
-                <strong>{deleteUser.name}</strong>?
-              </p>
-              <div className="flex justify-end space-x-2 mt-4">
-                <button
-                  onClick={() => setDeleteUser(null)}
-                  className="px-4 py-2 bg-gray-200 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDeleteUser}
-                  className="px-4 py-2 bg-red-600 text-white rounded"
-                >
-                  Delete
-
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Users List */}
+        <table className="w-full border-collapse border">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2">Name</th>
+              <th className="border p-2">Email</th>
+              <th className="border p-2">Role</th>
+              <th className="border p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id}>
+                <td className="border p-2">{u.name}</td>
+                <td className="border p-2">{u.email}</td>
+                <td className="border p-2">
+                  {roles.find((r) => r.id === u.role_id)?.name || "-"}
+                </td>
+                <td className="border p-2 flex gap-2">
+                  <button className="p-1 border rounded hover:bg-gray-100">
+                    <Edit2 />
+                  </button>
+                  <button
+                    className="p-1 border rounded hover:bg-red-100 text-red-600"
+                    onClick={() => handleDelete(u.id)}
+                  >
+                    <Trash2 />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </Layout>
   );

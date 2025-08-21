@@ -3,16 +3,7 @@ import { Plus, Edit, Trash2, Eye, X } from "lucide-react";
 import { Layout } from "../components/Layout/Layout";
 import { supabase } from "../lib/supabase";
 
-import { useAuth } from "../contexts/AuthContext";
-
 export function RoleManagement() {
-  const { loading: authLoading, userRole } = useAuth();
-  const isAdmin = (userRole || "").toLowerCase() === "admin";
-
-
-
-export function RoleManagement() {
-
   const [roles, setRoles] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -40,42 +31,25 @@ export function RoleManagement() {
   ];
 
   useEffect(() => {
-
-    if (isAdmin) fetchRoles();
-  }, [isAdmin]);
-
     fetchRoles();
   }, []);
-
 
   async function fetchRoles() {
     const { data, error } = await supabase
       .from("roles")
       .select("*")
-
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
-
-    if (error) console.error(error);
-    else setRoles(data || []);
-
       .eq("is_active", true) // Only active roles
       .order("created_at", { ascending: false });
 
     if (error) console.error(error);
     else setRoles(data);
-
   }
 
   async function createRole() {
     if (!roleName.trim()) return;
     const { error } = await supabase.from("roles").insert([
       {
-
-        role_name: roleName,
-
         role_name: roleName, // Correct column name
-
         permissions: permissions,
         is_active: true,
         created_at: new Date(),
@@ -131,27 +105,6 @@ export function RoleManagement() {
     );
   }
 
-
-  // --- Access control (consistent with Sidebar/App) ---
-  if (authLoading) {
-    return (
-      <Layout>
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
-        </div>
-      </Layout>
-    );
-  }
-  if (!isAdmin) {
-    return (
-      <Layout>
-        <div className="p-6 text-red-600 font-bold">Access Denied</div>
-      </Layout>
-    );
-  }
-
-
-
   return (
     <Layout>
       <div className="p-6">
@@ -185,13 +138,7 @@ export function RoleManagement() {
                 <td className="p-3">{role.role_name}</td>
                 <td className="p-3">{role.permissions?.join(", ")}</td>
                 <td className="p-3">
-
-                  {role.created_at
-                    ? new Date(role.created_at).toLocaleDateString()
-                    : "-"}
-
                   {new Date(role.created_at).toLocaleDateString()}
-
                 </td>
                 <td className="p-3 flex gap-3">
                   {/* View */}

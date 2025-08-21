@@ -1,3 +1,4 @@
+// src/pages/Expenses.tsx
 import React, { useState, useEffect } from "react";
 import { Plus, Search, Download, X } from "lucide-react";
 import { Layout } from "../components/Layout/Layout";
@@ -42,6 +43,7 @@ export function Expenses() {
         date,
         proof_url,
         phases (
+          id,
           name,
           projects ( name )
         )
@@ -51,7 +53,7 @@ export function Expenses() {
     if (error) {
       console.error("Error fetching expenses:", error);
     } else {
-      const formatted = data.map((e: any) => ({
+      const formatted = (data || []).map((e: any) => ({
         id: e.id,
         category: e.category,
         amount: e.amount,
@@ -76,7 +78,7 @@ export function Expenses() {
     if (error) {
       console.error("Error fetching phases:", error);
     } else {
-      const formatted = data.map((p: any) => ({
+      const formatted = (data || []).map((p: any) => ({
         id: p.id,
         name: p.name,
         project_name: p.projects?.name || "",
