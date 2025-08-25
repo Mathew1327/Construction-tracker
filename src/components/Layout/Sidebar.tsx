@@ -13,7 +13,8 @@ import {
   User,
   IndianRupee,
   Layers,
-  MessageSquare,
+  ShieldCheck,
+  Hammer, // ✅ new icon for Renovations
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -29,15 +30,72 @@ export function Sidebar() {
       icon: Home,
       allowedRoles: ["Admin", "Accounts", "Project Manager", "Site Engineer", "Client"],
     },
-    { name: "Projects", href: "/projects", icon: FolderOpen, allowedRoles: ["Admin", "Project Manager", "Site Engineer"] },
-    { name: "Phases", href: "/phases", icon: Layers, allowedRoles: ["Admin", "Project Manager", "Site Engineer", "Client"] },
-    { name: "Expenses", href: "/expenses", icon: IndianRupee, allowedRoles: ["Admin", "Accounts"] },
-    { name: "Materials", href: "/materials", icon: Package, allowedRoles: ["Admin", "Project Manager"] },
-    { name: "Reports", href: "/reports", icon: FileText, allowedRoles: ["Admin", "Project Manager"] },
-    { name: "Document Archive", href: "/documents", icon: Archive, allowedRoles: ["Admin", "Accounts", "Project Manager", "Site Engineer"] },
-    { name: "Profile", href: "/profile", icon: User, allowedRoles: ["Admin", "Accounts", "Project Manager", "Site Engineer", "Client"] },
-    { name: "Users", href: "/users", icon: Users, allowedRoles: ["Admin"] },
-    { name: "Role Management", href: "/roles", icon: Settings, allowedRoles: ["Admin"] },
+    {
+      name: "Projects",
+      href: "/projects",
+      icon: FolderOpen,
+      allowedRoles: ["Admin", "Project Manager", "Site Engineer"],
+    },
+    {
+      name: "Phases",
+      href: "/phases",
+      icon: Layers,
+      allowedRoles: ["Admin", "Project Manager", "Site Engineer", "Client"],
+    },
+    {
+      name: "Expenses",
+      href: "/expenses",
+      icon: IndianRupee,
+      allowedRoles: ["Admin", "Accounts"],
+    },
+    {
+      name: "Materials",
+      href: "/materials",
+      icon: Package,
+      allowedRoles: ["Admin", "Project Manager"],
+    },
+    {
+      name: "Reports",
+      href: "/reports",
+      icon: FileText,
+      allowedRoles: ["Admin", "Project Manager"],
+    },
+    {
+      name: "Document Archive",
+      href: "/documents",
+      icon: Archive,
+      allowedRoles: ["Admin", "Accounts", "Project Manager", "Site Engineer"],
+    },
+    {
+      name: "New Work Requirements", // ✅ new menu item
+      href: "/renovations",
+      icon: Hammer,
+      allowedRoles: ["Admin", "Project Manager", "Site Engineer", "Client"],
+    },
+    {
+      name: "Profile",
+      href: "/profile",
+      icon: User,
+      allowedRoles: ["Admin", "Accounts", "Project Manager", "Site Engineer", "Client"],
+    },
+    {
+      name: "Users",
+      href: "/users",
+      icon: Users,
+      allowedRoles: ["Admin"],
+    },
+    {
+      name: "Role Management",
+      href: "/roles",
+      icon: Settings,
+      allowedRoles: ["Admin"],
+    },
+    {
+      name: "Super Admin", // ✅ Super Admin menu item
+      href: "/super-admin",
+      icon: ShieldCheck,
+      allowedRoles: ["super_admin"],
+    },
   ];
 
   // Filter items based on userRole

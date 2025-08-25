@@ -9,12 +9,15 @@ type User = {
   id: string;
   name: string;
   email: string;
-  role_id: string;
+  role_id: string | null;
+  roles?: {
+    role_name: string;
+  } | null;
 };
 
 type Role = {
   id: string;
-  name: string;
+  role_name: string;
 };
 
 type Project = {
@@ -40,18 +43,27 @@ export function Users() {
     async function fetchData() {
       setLoading(true);
 
+      // Fetch users with roles (JOIN)
       const { data: usersData, error: usersError } = await supabase
         .from("users")
-        .select("*");
+        .select("id, name, email, role_id, roles(role_name)");
 
       if (usersError) console.error(usersError);
       else setUsers(usersData as User[]);
 
-      const { data: rolesData } = await supabase.from("roles").select("*");
-      if (rolesData) setRoles(rolesData as Role[]);
+      // Fetch roles from role management
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("roles")
+        .select("id, role_name");
+      if (rolesError) console.error(rolesError);
+      else setRoles(rolesData as Role[]);
 
-      const { data: projectsData } = await supabase.from("projects").select("*");
-      if (projectsData) setProjects(projectsData as Project[]);
+      // Fetch projects
+      const { data: projectsData, error: projError } = await supabase
+        .from("projects")
+        .select("id, name");
+      if (projError) console.error(projError);
+      else setProjects(projectsData as Project[]);
 
       setLoading(false);
     }
@@ -61,14 +73,20 @@ export function Users() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // Generate random password
+    // Generate random password (for emailing later)
     const password = Math.random().toString(36).slice(-8);
 
     // Insert user
     const { data: newUser, error: insertError } = await supabase
       .from("users")
-      .insert([{ name: formData.name, email: formData.email, role_id: formData.role_id }])
-      .select()
+      .insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          role_id: formData.role_id || null,
+        },
+      ])
+      .select("id, name, email, role_id, roles(role_name)")
       .single();
 
     if (insertError) {
@@ -155,7 +173,7 @@ export function Users() {
                 <option value="">Select role</option>
                 {roles.map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.name}
+                    {r.role_name}
                   </option>
                 ))}
               </select>
@@ -217,7 +235,7 @@ export function Users() {
                 <td className="border p-2">{u.name}</td>
                 <td className="border p-2">{u.email}</td>
                 <td className="border p-2">
-                  {roles.find((r) => r.id === u.role_id)?.name || "-"}
+                  {u.roles?.role_name || "-"}
                 </td>
                 <td className="border p-2 flex gap-2">
                   <button className="p-1 border rounded hover:bg-gray-100">

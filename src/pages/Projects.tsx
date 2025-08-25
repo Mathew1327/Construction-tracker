@@ -215,6 +215,7 @@ export function Projects() {
               >
                 <option value="Residential">Residential</option>
                 <option value="Commercial">Commercial</option>
+                <option value="Renovation">Renovation</option>
               </select>
               <input
                 type="text"

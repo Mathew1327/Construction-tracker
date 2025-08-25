@@ -13,6 +13,7 @@ import { Users } from "./pages/Users";
 import { Documents } from "./pages/Documents";
 import { RoleManagement } from "./pages/RoleManagement";
 import { Profile } from "./pages/Profile";
+import { Renovations } from "./pages/Renovations";
 
 // Generalized ProtectedRoute for roles
 function ProtectedRoute({
@@ -130,6 +131,16 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["Admin"]}>
                 <RoleManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Client renovation page */}
+          <Route
+            path="/renovations"
+            element={
+              <ProtectedRoute allowedRoles={["Client", "Admin", "Project Manager"]}>
+                <Renovations />
               </ProtectedRoute>
             }
           />
